@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background — cream, rounded for adaptive icons -->
+  <rect width="512" height="512" rx="114" fill="#f6efe3"/>
+  <!-- Outer plate ring -->
+  <circle cx="256" cy="256" r="158" fill="url(#plate-outer)"/>
+  <!-- Inner bowl -->
+  <circle cx="256" cy="256" r="114" fill="url(#plate-inner)"/>
+  <!-- Highlight -->
+  <ellipse cx="218" cy="214" rx="36" ry="18" fill="#fff" opacity="0.18" transform="rotate(-12 218 214)"/>
+  <defs>
+    <radialGradient id="plate-outer" cx="32%" cy="28%" r="78%">
+      <stop offset="0%" stop-color="#e8a05a"/>
+      <stop offset="100%" stop-color="#b04a28"/>
+    </radialGradient>
+    <radialGradient id="plate-inner" cx="38%" cy="30%" r="100%">
+      <stop offset="0%" stop-color="#e8a05a" stop-opacity="0.85"/>
+      <stop offset="65%" stop-color="#b04a28"/>
+      <stop offset="100%" stop-color="#8c3820"/>
+    </radialGradient>
+  </defs>
+</svg>

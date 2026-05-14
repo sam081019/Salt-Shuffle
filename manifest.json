@@ -1,0 +1,19 @@
+{
+  "name": "Kitchen Queen",
+  "short_name": "Kitchen Queen",
+  "description": "Shuffle your week. Build your pantry. Cook with confidence.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f6efe3",
+  "theme_color": "#211c14",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
