@@ -1,21 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Background — cream, rounded for adaptive icons -->
-  <rect width="512" height="512" rx="114" fill="#f6efe3"/>
-  <!-- Outer plate ring -->
-  <circle cx="256" cy="256" r="158" fill="url(#plate-outer)"/>
-  <!-- Inner bowl -->
-  <circle cx="256" cy="256" r="114" fill="url(#plate-inner)"/>
-  <!-- Highlight -->
-  <ellipse cx="218" cy="214" rx="36" ry="18" fill="#fff" opacity="0.18" transform="rotate(-12 218 214)"/>
-  <defs>
-    <radialGradient id="plate-outer" cx="32%" cy="28%" r="78%">
-      <stop offset="0%" stop-color="#e8a05a"/>
-      <stop offset="100%" stop-color="#b04a28"/>
-    </radialGradient>
-    <radialGradient id="plate-inner" cx="38%" cy="30%" r="100%">
-      <stop offset="0%" stop-color="#e8a05a" stop-opacity="0.85"/>
-      <stop offset="65%" stop-color="#b04a28"/>
-      <stop offset="100%" stop-color="#8c3820"/>
-    </radialGradient>
-  </defs>
+  <!-- Black background -->
+  <rect width="512" height="512" rx="80" fill="#111"/>
+
+  <!-- Chef's toque -->
+  <path d="M178 228 Q172 118 256 108 Q340 118 334 228 Z" fill="#fff"/>
+  <rect x="162" y="224" width="188" height="30" rx="4" fill="#fff"/>
+
+  <!-- Fork rotated -42deg, pivot at crossing point (256,330) -->
+  <g transform="translate(256,330) rotate(-42)">
+    <rect x="-16" y="-125" width="9" height="62" rx="4.5" fill="#fff"/>
+    <rect x="-4"  y="-125" width="9" height="62" rx="4.5" fill="#fff"/>
+    <rect x="8"   y="-125" width="9" height="62" rx="4.5" fill="#fff"/>
+    <rect x="-5"  y="-68"  width="11" height="185" rx="5.5" fill="#fff"/>
+  </g>
+
+  <!-- Spoon rotated +42deg, pivot at crossing point (256,330) -->
+  <g transform="translate(256,330) rotate(42)">
+    <ellipse cx="0" cy="-100" rx="26" ry="36" fill="#fff"/>
+    <rect x="-5.5" y="-67" width="11" height="185" rx="5.5" fill="#fff"/>
+  </g>
 </svg>

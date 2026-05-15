@@ -107,6 +107,10 @@ function CookbookApp({ tweaks }) {
   const [activeSlot, setActiveSlot] = React.useState('lunch'); // 'lunch' | 'dinner'
   const [sheet, setSheet] = React.useState(null); // { kind, ...payload }
   const [pantry, setPantry] = React.useState(new Set(['rice','onion','tomato','garlic','olive_oil','cumin','turmeric']));
+  const shoppingCount = React.useMemo(
+    () => Object.values(buildShoppingList(plan, pantry)).reduce((n, a) => n + a.length, 0),
+    [plan, pantry]
+  );
 
   React.useEffect(() => { setPlan(makePlan(daysCount, seed, activeMeals)); }, [daysCount]);
 
@@ -150,7 +154,7 @@ function CookbookApp({ tweaks }) {
 
   return (
     <div style={{ height: '100%', background: C.paper, color: C.ink, fontFamily: C.fontBody, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-      <CookbookHeader />
+      <CookbookHeader shoppingCount={shoppingCount} onShop={() => setSheet({ kind: 'shopping' })} />
       <div style={{ flex: 1, overflow: 'auto', paddingBottom: 110 }}>
         <CookbookHero plan={plan} daysCount={daysCount} />
         <CookbookSlotTabs slot={activeSlot} onChange={setActiveSlot} />
@@ -174,7 +178,6 @@ function CookbookApp({ tweaks }) {
         onShuffle={shuffle} shuffling={shuffling}
         onPantry={() => setSheet({ kind: 'pantry' })}
         onShop={() => setSheet({ kind: 'shopping' })}
-        onMeals={() => setSheet({ kind: 'meals' })}
       />
       {sheet && (
         <CookbookSheet sheet={sheet} plan={plan} pantry={pantry}
@@ -187,19 +190,23 @@ function CookbookApp({ tweaks }) {
           onRemoveMeal={removeMeal}
           onToggleFavorite={toggleFavorite}
           onToggleNeverAgain={toggleNeverAgain}
+          onShuffle={shuffle}
         />
       )}
     </div>
   );
 }
 
-function CookbookHeader() {
+function CookbookHeader({ shoppingCount = 0, onShop }) {
   return (
     <div style={{ paddingTop: 'max(44px, env(safe-area-inset-top, 44px))', paddingLeft: 22, paddingRight: 22, paddingBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       <div style={{ fontFamily: C.fontMono, fontSize: 11, letterSpacing: 2, color: C.inkDim, textTransform: 'uppercase' }}>No. 19 · The Week</div>
-      <div style={{ width: 32, height: 32, borderRadius: 16, border: `0.5px solid ${C.rule}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.inkDim }}>
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4"><circle cx="7" cy="7" r="2.5"/><path d="M7 .5v2M7 11.5v2M.5 7h2M11.5 7h2M2.5 2.5l1.4 1.4M10.1 10.1l1.4 1.4M2.5 11.5l1.4-1.4M10.1 3.9l1.4-1.4"/></svg>
-      </div>
+      <button onClick={onShop} style={{ position: 'relative', width: 36, height: 36, borderRadius: 18, border: `0.5px solid ${C.rule}`, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.ink, cursor: 'pointer' }}>
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"><path d="M5 6h10l-1 9.5H6L5 6zM7.5 6V4a2.5 2.5 0 015 0v2"/></svg>
+        {shoppingCount > 0 && (
+          <span style={{ position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, background: C.accent, color: C.paper, fontFamily: C.fontMono, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px' }}>{shoppingCount}</span>
+        )}
+      </button>
     </div>
   );
 }
@@ -209,8 +216,8 @@ function CookbookHero({ plan, daysCount }) {
   const cooking = daysCount - eatingOut;
   return (
     <div style={{ padding: '14px 22px 22px' }}>
-      <div style={{ fontFamily: C.fontDisplay, fontSize: 56, lineHeight: 0.95, letterSpacing: -1.5, color: C.ink, fontWeight: 400 }}>
-        Plan for<br/><em style={{ color: C.accent, fontStyle: 'italic' }}>this week.</em>
+      <div style={{ fontFamily: C.fontDisplay, fontSize: 'clamp(34px, 11vw, 52px)', lineHeight: 1, letterSpacing: -1, color: C.ink, fontWeight: 400, whiteSpace: 'nowrap' }}>
+        Plan for <em style={{ color: C.accent, fontStyle: 'italic' }}>this week</em>
       </div>
       <div style={{ marginTop: 18, display: 'flex', gap: 22, alignItems: 'center' }}>
         <div>
@@ -283,26 +290,29 @@ function CookbookFooterMeta({ plan, pantry, onShoppingList, onPantry }) {
   );
 }
 
-function CookbookBottomBar({ onShuffle, shuffling, onPantry, onShop, onMeals }) {
+function CookbookBottomBar({ onShuffle, shuffling, onPantry, onShop }) {
   return (
     <div style={{
       position: 'absolute', bottom: 0, left: 0, right: 0,
       paddingTop: 14, paddingLeft: 14, paddingRight: 14,
       paddingBottom: 'max(30px, calc(env(safe-area-inset-bottom, 0px) + 14px))',
       background: `linear-gradient(to top, ${C.paper} 60%, ${C.paper}00)`,
-      display: 'flex', gap: 8, alignItems: 'center',
+      display: 'flex', gap: 10, alignItems: 'center',
     }}>
-      <button onClick={onMeals} title="Meal library" style={iconButton(C)}>
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M4 3.5h12v13H4z M7 3.5v13 M4 7h12"/></svg>
-      </button>
       <button onClick={onPantry} title="Pantry" style={iconButton(C)}>
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3"><rect x="3.5" y="3.5" width="13" height="13" rx="1.5"/><path d="M3.5 8h13M10 3.5v13"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 3h8l1 3H7L8 3z"/>
+          <rect x="6" y="6" width="12" height="15" rx="2"/>
+          <path d="M9 11h6M9 14h4"/>
+        </svg>
       </button>
-      <button onClick={onShop} title="Shopping list" style={iconButton(C)}>
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M5 6h10l-1 9.5H6L5 6zM7.5 6V4a2.5 2.5 0 015 0v2"/></svg>
+      <button onClick={onShop} title="Shopping list" style={{ ...iconButton(C), background: C.accent, color: C.paper, border: 'none' }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+          <path d="M6 7h12l-1.5 11H7.5L6 7zM9 7V5a3 3 0 016 0v2"/>
+        </svg>
       </button>
       <button onClick={onShuffle} disabled={shuffling} style={{
-        flex: 1, height: 52, borderRadius: 26, border: 'none', cursor: shuffling ? 'wait' : 'pointer',
+        flex: 1, height: 58, borderRadius: 29, border: 'none', cursor: shuffling ? 'wait' : 'pointer',
         background: C.ink, color: C.paper, display: 'flex', alignItems: 'center', justifyContent: 'center',
         gap: 8, fontFamily: C.fontDisplay, fontSize: 19, fontStyle: 'italic',
       }}>
@@ -315,7 +325,7 @@ function CookbookBottomBar({ onShuffle, shuffling, onPantry, onShop, onMeals }) 
 
 function iconButton(c) {
   return {
-    width: 52, height: 52, borderRadius: 26, border: `0.5px solid ${c.rule}`,
+    width: 58, height: 58, borderRadius: 29, border: `0.5px solid ${c.rule}`,
     background: c.card, color: c.ink, cursor: 'pointer',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   };
@@ -402,7 +412,7 @@ function StaggerShuffleOverlay({ plan, slot }) {
 }
 
 // ─── Bottom sheet ─────────────────────────────────────────────────────
-function CookbookSheet({ sheet, plan, pantry, meals, favorites, neverAgain, onClose, onToggleEatOut, onSwap, setPantry, onAddCustomMeal, onRemoveMeal, onToggleFavorite, onToggleNeverAgain }) {
+function CookbookSheet({ sheet, plan, pantry, meals, favorites, neverAgain, onClose, onToggleEatOut, onSwap, setPantry, onAddCustomMeal, onRemoveMeal, onToggleFavorite, onToggleNeverAgain, onShuffle }) {
   return (
     <div style={{ position: 'absolute', inset: 0, zIndex: 100 }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(33,28,20,0.45)', backdropFilter: 'blur(2px)', animation: 'fade 0.2s' }} />
@@ -418,8 +428,8 @@ function CookbookSheet({ sheet, plan, pantry, meals, favorites, neverAgain, onCl
         </div>
         <div style={{ overflow: 'auto', flex: 1, paddingBottom: 30 }}>
           {sheet.kind === 'meal' && <MealSheet plan={plan} sheet={sheet} onToggleEatOut={onToggleEatOut} onSwap={onSwap} onClose={onClose} />}
-          {sheet.kind === 'pantry' && <PantrySheet pantry={pantry} setPantry={setPantry} />}
-          {sheet.kind === 'shopping' && <ShoppingSheet plan={plan} pantry={pantry} setPantry={setPantry} />}
+          {sheet.kind === 'pantry' && <PantrySheet pantry={pantry} setPantry={setPantry} onClose={onClose} onShuffle={onShuffle} />}
+          {sheet.kind === 'shopping' && <ShoppingSheet plan={plan} pantry={pantry} setPantry={setPantry} onClose={onClose} />}
           {sheet.kind === 'meals' && <MealsLibrarySheet meals={meals} favorites={favorites} neverAgain={neverAgain} onAddCustomMeal={onAddCustomMeal} onRemoveMeal={onRemoveMeal} onToggleFavorite={onToggleFavorite} onToggleNeverAgain={onToggleNeverAgain} />}
         </div>
       </div>
@@ -477,8 +487,14 @@ function sheetBtn(c, primary) {
   };
 }
 
-function PantrySheet({ pantry, setPantry }) {
-  const [mode, setMode] = React.useState('list'); // 'list' | 'paste'
+function PantrySheet({ pantry, setPantry, onClose, onShuffle }) {
+  const SECTIONS = [
+    { label: 'Grains',     key: 'Grains & Starches' },
+    { label: 'Protein',    key: 'Legumes & Protein' },
+    { label: 'Vegetables', key: 'Vegetables' },
+    { label: 'Spices',     key: 'Spices & Pantry' },
+  ];
+  const [mode, setMode] = React.useState('list');
   const [paste, setPaste] = React.useState('');
   const toggle = (k) => setPantry(p => {
     const n = new Set(p);
@@ -496,10 +512,11 @@ function PantrySheet({ pantry, setPantry }) {
     setPantry(found);
     setMode('list');
   };
+  const handleApply = () => { if (onShuffle) onShuffle(); onClose(); };
   return (
     <div style={{ padding: '6px 22px 0' }}>
       <div style={{ fontFamily: C.fontMono, fontSize: 10, letterSpacing: 1.4, color: C.inkFaint, textTransform: 'uppercase' }}>Your kitchen</div>
-      <div style={{ fontFamily: C.fontDisplay, fontSize: 38, lineHeight: 1, marginTop: 6 }}>What's in stock</div>
+      <div style={{ fontFamily: C.fontDisplay, fontSize: 38, lineHeight: 1, marginTop: 6 }}>What's in the pantry</div>
       <div style={{ display: 'flex', gap: 4, padding: '20px 0 16px', borderBottom: `0.5px solid ${C.rule}` }}>
         {[['list','Tick from list'],['paste','Paste a receipt']].map(([k, label]) => (
           <button key={k} onClick={() => setMode(k)} style={{
@@ -509,24 +526,27 @@ function PantrySheet({ pantry, setPantry }) {
           }}>{label}</button>
         ))}
       </div>
-      {mode === 'list' && Object.entries(PANTRY_MASTER).map(([aisle, items]) => (
-        <div key={aisle} style={{ paddingTop: 18 }}>
-          <div style={{ fontFamily: C.fontMono, fontSize: 10, letterSpacing: 1.4, color: C.inkFaint, textTransform: 'uppercase', marginBottom: 10 }}>{aisle}</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {items.map(k => {
-              const on = pantry.has(k);
-              return (
-                <button key={k} onClick={() => toggle(k)} style={{
-                  padding: '7px 11px', fontFamily: C.fontBody, fontSize: 12.5,
-                  background: on ? C.accent : 'transparent',
-                  color: on ? C.paper : C.ink,
-                  border: `0.5px solid ${on ? C.accent : C.rule}`, borderRadius: 99, cursor: 'pointer',
-                }}>{on && '✓ '}{pretty(k)}</button>
-              );
-            })}
+      {mode === 'list' && SECTIONS.map(({ label, key }) => {
+        const items = PANTRY_MASTER[key] || [];
+        return (
+          <div key={label} style={{ paddingTop: 18 }}>
+            <div style={{ fontFamily: C.fontBody, fontSize: 13, color: C.ink, fontWeight: 600, marginBottom: 10 }}>{label}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {items.map(k => {
+                const on = pantry.has(k);
+                return (
+                  <button key={k} onClick={() => toggle(k)} style={{
+                    padding: '7px 11px', fontFamily: C.fontBody, fontSize: 12.5,
+                    background: on ? C.accent : 'transparent',
+                    color: on ? C.paper : C.ink,
+                    border: `0.5px solid ${on ? C.accent : C.rule}`, borderRadius: 99, cursor: 'pointer',
+                  }}>{on && '✓ '}{pretty(k)}</button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
       {mode === 'paste' && (
         <div style={{ paddingTop: 20 }}>
           <div style={{ fontFamily: C.fontBody, fontSize: 13, color: C.inkDim, lineHeight: 1.5, marginBottom: 12 }}>Paste your receipt or grocery list. We'll try to match items.</div>
@@ -538,24 +558,43 @@ function PantrySheet({ pantry, setPantry }) {
           <button onClick={importPaste} style={{ ...sheetBtn(C, true), width: '100%', marginTop: 14 }}>Match {paste.split(/[,\n]/).filter(s => s.trim()).length || 0} items</button>
         </div>
       )}
+      <div style={{ display: 'flex', gap: 8, padding: '24px 0 40px' }}>
+        <button onClick={onClose} style={sheetBtn(C, false)}>Exit</button>
+        <button onClick={handleApply} style={sheetBtn(C, true)}>Apply &amp; shuffle</button>
+      </div>
     </div>
   );
 }
 
-function ShoppingSheet({ plan, pantry, setPantry }) {
-  const list = buildShoppingList(plan, pantry);
-  const total = Object.values(list).reduce((n, a) => n + a.length, 0);
+function ShoppingSheet({ plan, pantry, setPantry, onClose }) {
+  const AISLE_MAP = {
+    'Legumes & Protein': 'Protein',
+    'Vegetables': 'Vegetables',
+    'Grains & Starches': 'Grains',
+    'Dairy & Cold': 'Dairy',
+    'Fruits': 'Fruits',
+  };
+  const AISLE_ORDER = ['Protein', 'Vegetables', 'Grains', 'Dairy', 'Fruits'];
+  const rawList = buildShoppingList(plan, pantry);
+  const list = {};
+  for (const [aisle, items] of Object.entries(rawList)) {
+    const display = AISLE_MAP[aisle];
+    if (!display) continue;
+    list[display] = [...(list[display] || []), ...items];
+  }
+  const orderedList = AISLE_ORDER.filter(a => list[a]).map(a => [a, list[a]]);
+  const total = orderedList.reduce((n, [, items]) => n + items.length, 0);
   const [bought, setBought] = React.useState(new Set());
   const toggle = (k) => setBought(b => { const n = new Set(b); n.has(k) ? n.delete(k) : n.add(k); return n; });
   return (
     <div style={{ padding: '6px 22px 0' }}>
       <div style={{ fontFamily: C.fontMono, fontSize: 10, letterSpacing: 1.4, color: C.inkFaint, textTransform: 'uppercase' }}>To buy this week</div>
       <div style={{ fontFamily: C.fontDisplay, fontSize: 38, lineHeight: 1, marginTop: 6 }}>Shopping list</div>
-      <div style={{ fontFamily: C.fontBody, fontSize: 13, color: C.inkDim, marginTop: 8 }}>{total} items across {Object.keys(list).length} aisles · gaps after pantry</div>
-      <div style={{ paddingTop: 22 }}>
-        {Object.entries(list).map(([aisle, items]) => (
+      <div style={{ fontFamily: C.fontBody, fontSize: 13, color: C.inkDim, marginTop: 8 }}>{total} items to buy this week</div>
+      <div style={{ paddingTop: 22, paddingBottom: 20 }}>
+        {orderedList.map(([aisle, items]) => (
           <div key={aisle} style={{ marginBottom: 22 }}>
-            <div style={{ fontFamily: C.fontMono, fontSize: 10, letterSpacing: 1.4, color: C.inkFaint, textTransform: 'uppercase', marginBottom: 10 }}>{aisle}</div>
+            <div style={{ fontFamily: C.fontBody, fontSize: 13, color: C.ink, fontWeight: 600, marginBottom: 10 }}>{aisle}</div>
             {items.map(it => {
               const done = bought.has(it.key);
               return (
@@ -575,6 +614,13 @@ function ShoppingSheet({ plan, pantry, setPantry }) {
             })}
           </div>
         ))}
+      </div>
+      <div style={{ position: 'sticky', bottom: 0, display: 'flex', justifyContent: 'flex-end', padding: '12px 0 28px', background: `linear-gradient(transparent, ${C.paper} 35%)` }}>
+        <button onClick={onClose} style={{
+          height: 46, padding: '0 28px', borderRadius: 23, border: 'none',
+          background: C.ink, color: C.paper, fontFamily: C.fontBody, fontSize: 15,
+          fontWeight: 500, cursor: 'pointer',
+        }}>Apply</button>
       </div>
     </div>
   );
