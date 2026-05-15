@@ -1,4 +1,4 @@
-const CACHE = 'kitchen-queen-v3';
+const CACHE = 'kitchen-queen-v4';
 const SHELL = [
   './index.html',
   './app/data.js',

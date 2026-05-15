@@ -3,7 +3,7 @@ import math, struct, zlib
 W, H = 512, 512
 ang = math.radians(42)
 ca, sa = math.cos(ang), math.sin(ang)
-ux, uy = 256, 348  # crossing point of utensils
+ux, uy = 256, 418  # crossing point
 
 def in_ellipse(x, y, cx, cy, rx, ry):
     return ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1
@@ -18,43 +18,47 @@ def in_rrect(x, y, x1, y1, x2, y2, r=0):
     return True
 
 def hat_hit(x, y):
-    # Dome — semicircle sitting on top of the body
-    if (x - 256) ** 2 + (y - 82) ** 2 <= 82 ** 2 and y <= 82:
+    # Three puffs: large center + two smaller sides
+    if in_ellipse(x, y, 256, 108, 74, 74):   # large center puff
         return True
-    # Body — straight-sided tube below dome
-    if 174 <= x <= 338 and 78 <= y <= 168:
+    if in_ellipse(x, y, 176, 152, 55, 55):   # left small puff
         return True
-    # Brim — wider flat band at the bottom
-    if in_rrect(x, y, 128, 158, 384, 192, 10):
+    if in_ellipse(x, y, 336, 152, 55, 55):   # right small puff
+        return True
+    # Cylindrical body — narrower than puff cluster, connects to brim
+    if 210 <= x <= 302 and 178 <= y <= 290:
+        return True
+    # Flat brim — wider than cylinder
+    if in_rrect(x, y, 150, 282, 362, 314, 12):
         return True
     return False
 
 # Fork: SVG rotate(-42) — visual CCW 42° in y-down
-# World→local: fx = ca*dx - sa*dy, fy = sa*dx + ca*dy
+# World→local: fx = ca*dx - sa*dy,  fy = sa*dx + ca*dy
 def fork_hit(x, y):
     dx, dy = x - ux, y - uy
     fx = ca * dx - sa * dy
     fy = sa * dx + ca * dy
-    # 3 tines: fy in [-185, -92], at fx = -24, 0, +24, each 10 wide
-    if -185 <= fy <= -92:
-        if abs(fx + 24) <= 10 or abs(fx) <= 10 or abs(fx - 24) <= 10:
+    # 3 tines at fx = -24, 0, +24, each 11 wide, fy in [-175, -98]
+    if -175 <= fy <= -98:
+        if abs(fx + 24) <= 11 or abs(fx) <= 11 or abs(fx - 24) <= 11:
             return True
-    # Handle: |fx| <= 14, fy in [-94, 178]
-    if abs(fx) <= 14 and -94 <= fy <= 178:
+    # Handle: |fx| <= 14, fy in [-100, 115]
+    if abs(fx) <= 14 and -100 <= fy <= 115:
         return True
     return False
 
 # Spoon: SVG rotate(+42) — visual CW 42° in y-down
-# World→local: sx = ca*dx + sa*dy, sy = -sa*dx + ca*dy
+# World→local: sx = ca*dx + sa*dy,  sy = -sa*dx + ca*dy
 def spoon_hit(x, y):
     dx, dy = x - ux, y - uy
     sx =  ca * dx + sa * dy
     sy = -sa * dx + ca * dy
-    # Bowl: ellipse at (0, -128), rx=40, ry=58
-    if in_ellipse(sx, sy, 0, -128, 40, 58):
+    # Bowl ellipse at local (0, -140), rx=38, ry=54
+    if in_ellipse(sx, sy, 0, -140, 38, 54):
         return True
-    # Handle: |sx| <= 14, sy in [-73, 178]
-    if abs(sx) <= 14 and -73 <= sy <= 178:
+    # Handle: |sx| <= 14, sy in [-88, 115]
+    if abs(sx) <= 14 and -88 <= sy <= 115:
         return True
     return False
 

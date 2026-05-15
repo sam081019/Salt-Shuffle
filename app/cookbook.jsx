@@ -199,8 +199,7 @@ function CookbookApp({ tweaks }) {
 
 function CookbookHeader({ shoppingCount = 0, onShop }) {
   return (
-    <div style={{ paddingTop: 'max(44px, env(safe-area-inset-top, 44px))', paddingLeft: 22, paddingRight: 22, paddingBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <div style={{ fontFamily: C.fontMono, fontSize: 11, letterSpacing: 2, color: C.inkDim, textTransform: 'uppercase' }}>No. 19 · The Week</div>
+    <div style={{ paddingTop: 'max(44px, env(safe-area-inset-top, 44px))', paddingLeft: 22, paddingRight: 22, paddingBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
       <button onClick={onShop} style={{ position: 'relative', width: 36, height: 36, borderRadius: 18, border: `0.5px solid ${C.rule}`, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.ink, cursor: 'pointer' }}>
         <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"><path d="M5 6h10l-1 9.5H6L5 6zM7.5 6V4a2.5 2.5 0 015 0v2"/></svg>
         {shoppingCount > 0 && (
@@ -615,7 +614,12 @@ function ShoppingSheet({ plan, pantry, setPantry, onClose }) {
           </div>
         ))}
       </div>
-      <div style={{ position: 'sticky', bottom: 0, display: 'flex', justifyContent: 'flex-end', padding: '12px 0 28px', background: `linear-gradient(transparent, ${C.paper} 35%)` }}>
+      <div style={{ position: 'sticky', bottom: 0, display: 'flex', justifyContent: 'space-between', padding: '12px 0 28px', background: `linear-gradient(transparent, ${C.paper} 35%)` }}>
+        <button onClick={() => setBought(new Set())} style={{
+          height: 46, padding: '0 28px', borderRadius: 23, border: `0.5px solid ${C.rule}`,
+          background: 'transparent', color: C.ink, fontFamily: C.fontBody, fontSize: 15,
+          fontWeight: 500, cursor: 'pointer',
+        }}>Clear</button>
         <button onClick={onClose} style={{
           height: 46, padding: '0 28px', borderRadius: 23, border: 'none',
           background: C.ink, color: C.paper, fontFamily: C.fontBody, fontSize: 15,
