@@ -1,6 +1,6 @@
 {
-  "name": "Kitchen Queen",
-  "short_name": "Kitchen Queen",
+  "name": "Kitchen Master",
+  "short_name": "Kitchen Master",
   "description": "Shuffle your week. Build your pantry. Cook with confidence.",
   "start_url": "./index.html",
   "scope": "./",
