@@ -19,10 +19,23 @@ const C = {
   fontHand: '"Caveat", cursive',
 };
 
-// Abstract dish "plate" — radial gradient bowl with a soft inner ring and
-// highlight. Reads as "a meal" without committing to a specific look.
+// Dish plate — shows a real photo when meal.img is set, otherwise falls back
+// to the radial gradient bowl. Error boundary is per-instance via useState.
 function DishPlate({ meal, size = 88, ringless = false }) {
   if (!meal) return null;
+  const [imgErr, setImgErr] = React.useState(false);
+  if (meal.img && !imgErr) {
+    return (
+      <div style={{
+        width: size, height: size, borderRadius: size,
+        overflow: 'hidden', flexShrink: 0,
+        boxShadow: ringless ? 'none' : '0 6px 18px rgba(43,38,32,0.22)',
+      }}>
+        <img src={meal.img} alt={meal.name} onError={() => setImgErr(true)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      </div>
+    );
+  }
   const [a, b] = meal.tint;
   return (
     <div style={{
@@ -53,6 +66,88 @@ function CTag({ children }) {
       fontFamily: C.fontMono, fontSize: 9.5, letterSpacing: 0.8, textTransform: 'uppercase',
       color: C.inkDim, padding: '3px 7px', border: `0.5px solid ${C.rule}`, borderRadius: 2,
     }}>{children}</span>
+  );
+}
+
+// Voice nudge banner — shows on app open, cycles through all 3 mood-board
+// quote variants (cream · forest · mustard), auto-advances every 3 s,
+// auto-dismisses after ~10 s. No business logic needed to appreciate it.
+function NudgeBanner({ onDismiss }) {
+  const NUDGES = [
+    {
+      parts: ['Tonight: ', 'dal & rice', '. Twenty minutes, mostly waiting.'],
+      label: 'Today · default',
+      bg: C.card, color: C.ink, em: C.accent, lbl: C.inkFaint, bordered: true,
+    },
+    {
+      parts: ['Not feeling it? ', 'Shuffle', '. I\'ll pick something easier.'],
+      label: 'Empty · undecided',
+      bg: C.forest, color: C.paper, em: C.mustard, lbl: 'rgba(245,239,228,0.6)', bordered: false,
+    },
+    {
+      parts: ['You cooked five days straight. ', 'Nice.', ''],
+      label: 'Weekly win',
+      bg: C.mustard, color: C.ink, em: '#A8412C', lbl: C.inkDim, bordered: false,
+    },
+  ];
+  const [idx, setIdx] = React.useState(0);
+  // Auto-advance to next nudge every 3 s.
+  React.useEffect(() => {
+    const t = setTimeout(() => setIdx(i => (i + 1) % NUDGES.length), 3000);
+    return () => clearTimeout(t);
+  }, [idx]);
+  // Auto-dismiss after all 3 have been shown once (~10.5 s total).
+  React.useEffect(() => {
+    const t = setTimeout(onDismiss, 10500);
+    return () => clearTimeout(t);
+  }, []);
+  const n = NUDGES[idx];
+  return (
+    <div style={{ padding: '2px 16px 10px' }}>
+      <style>{`
+        @keyframes nudge-in { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+      `}</style>
+      <div key={idx} style={{
+        background: n.bg, borderRadius: 18,
+        padding: '16px 44px 14px 18px',
+        boxShadow: '0 6px 20px -8px rgba(43,38,32,0.28)',
+        border: n.bordered ? `0.5px solid ${C.rule}` : 'none',
+        position: 'relative',
+        animation: 'nudge-in 0.35s cubic-bezier(.2,.8,.2,1)',
+      }}>
+        <p style={{
+          fontFamily: C.fontDisplay, fontSize: 21, lineHeight: 1.25,
+          color: n.color, margin: '0 0 10px', letterSpacing: -0.2,
+        }}>
+          {n.parts[0]}
+          <em style={{ color: n.em, fontStyle: 'italic' }}>{n.parts[1]}</em>
+          {n.parts[2]}
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{
+            fontFamily: C.fontBody, fontSize: 9.5,
+            letterSpacing: '0.2em', textTransform: 'uppercase', color: n.lbl,
+          }}>{n.label}</span>
+          <div style={{ display: 'flex', gap: 4, marginLeft: 'auto' }}>
+            {NUDGES.map((_, i) => (
+              <button key={i} onClick={() => setIdx(i)} style={{
+                width: i === idx ? 16 : 6, height: 6, borderRadius: 3,
+                padding: 0, border: 'none', cursor: 'pointer',
+                background: n.color, opacity: i === idx ? 0.65 : 0.2,
+                transition: 'width 0.25s, opacity 0.25s',
+              }} />
+            ))}
+          </div>
+        </div>
+        <button onClick={onDismiss} style={{
+          position: 'absolute', top: 10, right: 10,
+          width: 26, height: 26, borderRadius: 13,
+          background: 'rgba(0,0,0,0.1)', border: 'none',
+          color: n.color, cursor: 'pointer', fontSize: 15, opacity: 0.65,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>×</button>
+      </div>
+    </div>
   );
 }
 
@@ -109,16 +204,16 @@ function CookbookApp({ tweaks }) {
   const [activeSlot, setActiveSlot] = React.useState('lunch'); // 'lunch' | 'dinner'
   const [sheet, setSheet] = React.useState(null); // { kind, ...payload }
   const [pantry, setPantry] = React.useState(new Set(['rice','onion','tomato','garlic','olive_oil','cumin','turmeric']));
-  const shoppingCount = React.useMemo(
-    () => Object.values(buildShoppingList(plan, pantry)).reduce((n, a) => n + a.length, 0),
-    [plan, pantry]
-  );
+  const [cart, setCart] = React.useState(new Set());
+  const shoppingCount = cart.size;
+  const [showNudge, setShowNudge] = React.useState(true);
 
   React.useEffect(() => { setPlan(makePlan(daysCount, seed, activeMeals)); }, [daysCount]);
 
   const shuffle = () => {
     if (shuffling) return;
     setShuffling(true);
+    setCart(new Set());
     setTimeout(() => {
       const next = seed + 1;
       setSeed(next);
@@ -158,6 +253,7 @@ function CookbookApp({ tweaks }) {
     <div style={{ height: '100%', background: C.paper, color: C.ink, fontFamily: C.fontBody, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       <CookbookHeader shoppingCount={shoppingCount} onShop={() => setSheet({ kind: 'shopping' })} />
       <div style={{ flex: 1, overflow: 'auto', paddingBottom: 110 }}>
+        {showNudge && <NudgeBanner onDismiss={() => setShowNudge(false)} />}
         <CookbookHero plan={plan} daysCount={daysCount} />
         <CookbookSlotTabs slot={activeSlot} onChange={setActiveSlot} />
         <div style={{ position: 'relative' }}>
@@ -184,6 +280,7 @@ function CookbookApp({ tweaks }) {
       {sheet && (
         <CookbookSheet sheet={sheet} plan={plan} pantry={pantry}
           meals={meals} favorites={favorites} neverAgain={neverAgain}
+          cart={cart} setCart={setCart}
           onClose={() => setSheet(null)}
           onToggleEatOut={toggleEatOut}
           onSwap={swap}
@@ -413,7 +510,7 @@ function StaggerShuffleOverlay({ plan, slot }) {
 }
 
 // ─── Bottom sheet ─────────────────────────────────────────────────────
-function CookbookSheet({ sheet, plan, pantry, meals, favorites, neverAgain, onClose, onToggleEatOut, onSwap, setPantry, onAddCustomMeal, onRemoveMeal, onToggleFavorite, onToggleNeverAgain, onShuffle }) {
+function CookbookSheet({ sheet, plan, pantry, meals, favorites, neverAgain, cart, setCart, onClose, onToggleEatOut, onSwap, setPantry, onAddCustomMeal, onRemoveMeal, onToggleFavorite, onToggleNeverAgain, onShuffle }) {
   return (
     <div style={{ position: 'absolute', inset: 0, zIndex: 100 }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(33,28,20,0.45)', backdropFilter: 'blur(2px)', animation: 'fade 0.2s' }} />
@@ -430,7 +527,7 @@ function CookbookSheet({ sheet, plan, pantry, meals, favorites, neverAgain, onCl
         <div style={{ overflow: 'auto', flex: 1, paddingBottom: 30 }}>
           {sheet.kind === 'meal' && <MealSheet plan={plan} sheet={sheet} onToggleEatOut={onToggleEatOut} onSwap={onSwap} onClose={onClose} />}
           {sheet.kind === 'pantry' && <PantrySheet pantry={pantry} setPantry={setPantry} onClose={onClose} onShuffle={onShuffle} />}
-          {sheet.kind === 'shopping' && <ShoppingSheet plan={plan} pantry={pantry} setPantry={setPantry} onClose={onClose} />}
+          {sheet.kind === 'shopping' && <ShoppingSheet plan={plan} pantry={pantry} setPantry={setPantry} cart={cart} setCart={setCart} onClose={onClose} />}
           {sheet.kind === 'meals' && <MealsLibrarySheet meals={meals} favorites={favorites} neverAgain={neverAgain} onAddCustomMeal={onAddCustomMeal} onRemoveMeal={onRemoveMeal} onToggleFavorite={onToggleFavorite} onToggleNeverAgain={onToggleNeverAgain} />}
         </div>
       </div>
@@ -522,16 +619,21 @@ function PantrySheet({ pantry, setPantry, onClose, onShuffle }) {
         {[['list','Tick from list'],['paste','Paste a receipt']].map(([k, label]) => (
           <button key={k} onClick={() => setMode(k)} style={{
             padding: '6px 12px', fontFamily: C.fontBody, fontSize: 12,
-            background: mode === k ? C.ink : 'transparent', color: mode === k ? C.paper : C.inkDim,
-            border: `0.5px solid ${mode === k ? C.ink : C.rule}`, borderRadius: 99, cursor: 'pointer',
+            background: mode === k ? C.forest : 'transparent', color: mode === k ? C.paper : C.inkDim,
+            border: `0.5px solid ${mode === k ? C.forest : C.rule}`, borderRadius: 99, cursor: 'pointer',
           }}>{label}</button>
         ))}
+        <button onClick={() => setPantry(new Set())} style={{
+          marginLeft: 'auto', padding: '6px 12px', fontFamily: C.fontBody, fontSize: 12,
+          background: 'transparent', color: C.accent,
+          border: `0.5px solid ${C.accent}`, borderRadius: 99, cursor: 'pointer',
+        }}>Clear all</button>
       </div>
       {mode === 'list' && SECTIONS.map(({ label, key }) => {
         const items = PANTRY_MASTER[key] || [];
         return (
           <div key={label} style={{ paddingTop: 18 }}>
-            <div style={{ fontFamily: C.fontBody, fontSize: 13, color: C.ink, fontWeight: 600, marginBottom: 10 }}>{label}</div>
+            <div style={{ fontFamily: C.fontBody, fontSize: 13, color: C.forest, fontWeight: 600, marginBottom: 10 }}>{label}</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {items.map(k => {
                 const on = pantry.has(k);
@@ -567,7 +669,7 @@ function PantrySheet({ pantry, setPantry, onClose, onShuffle }) {
   );
 }
 
-function ShoppingSheet({ plan, pantry, setPantry, onClose }) {
+function ShoppingSheet({ plan, pantry, setPantry, cart, setCart, onClose }) {
   const AISLE_MAP = {
     'Legumes & Protein': 'Protein',
     'Vegetables': 'Vegetables',
@@ -585,8 +687,7 @@ function ShoppingSheet({ plan, pantry, setPantry, onClose }) {
   }
   const orderedList = AISLE_ORDER.filter(a => list[a]).map(a => [a, list[a]]);
   const total = orderedList.reduce((n, [, items]) => n + items.length, 0);
-  const [bought, setBought] = React.useState(new Set());
-  const toggle = (k) => setBought(b => { const n = new Set(b); n.has(k) ? n.delete(k) : n.add(k); return n; });
+  const toggle = (k) => setCart(b => { const n = new Set(b); n.has(k) ? n.delete(k) : n.add(k); return n; });
   return (
     <div style={{ padding: '6px 22px 0' }}>
       <div style={{ fontFamily: C.fontMono, fontSize: 10, letterSpacing: 1.4, color: C.inkFaint, textTransform: 'uppercase' }}>To buy this week</div>
@@ -597,7 +698,7 @@ function ShoppingSheet({ plan, pantry, setPantry, onClose }) {
           <div key={aisle} style={{ marginBottom: 22 }}>
             <div style={{ fontFamily: C.fontBody, fontSize: 13, color: C.ink, fontWeight: 600, marginBottom: 10 }}>{aisle}</div>
             {items.map(it => {
-              const done = bought.has(it.key);
+              const done = cart.has(it.key);
               return (
                 <div key={it.key} onClick={() => toggle(it.key)} style={{
                   display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0',
@@ -608,7 +709,7 @@ function ShoppingSheet({ plan, pantry, setPantry, onClose }) {
                     background: done ? C.accent : 'transparent',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                   }}>{done && <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke={C.paper} strokeWidth="1.6"><path d="M2 5l2 2 4-4"/></svg>}</div>
-                  <div style={{ flex: 1, fontFamily: C.fontBody, fontSize: 15, color: done ? C.inkFaint : C.ink, textDecoration: done ? 'line-through' : 'none' }}>{it.label}</div>
+                  <div style={{ flex: 1, fontFamily: C.fontBody, fontSize: 15, color: C.ink }}>{it.label}</div>
                   <div style={{ fontFamily: C.fontMono, fontSize: 10, letterSpacing: 1, color: C.inkFaint }}>{it.count}×</div>
                 </div>
               );
@@ -617,16 +718,16 @@ function ShoppingSheet({ plan, pantry, setPantry, onClose }) {
         ))}
       </div>
       <div style={{ position: 'sticky', bottom: 0, display: 'flex', justifyContent: 'space-between', padding: '12px 0 28px', background: `linear-gradient(transparent, ${C.paper} 35%)` }}>
-        <button onClick={() => setBought(new Set())} style={{
+        <button onClick={() => setCart(new Set())} style={{
           height: 46, padding: '0 28px', borderRadius: 23, border: `0.5px solid ${C.rule}`,
           background: 'transparent', color: C.ink, fontFamily: C.fontBody, fontSize: 15,
           fontWeight: 500, cursor: 'pointer',
-        }}>Clear</button>
+        }}>Clear cart</button>
         <button onClick={onClose} style={{
           height: 46, padding: '0 28px', borderRadius: 23, border: 'none',
           background: C.ink, color: C.paper, fontFamily: C.fontBody, fontSize: 15,
           fontWeight: 500, cursor: 'pointer',
-        }}>Apply</button>
+        }}>Add to cart</button>
       </div>
     </div>
   );

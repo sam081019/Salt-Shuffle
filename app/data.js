@@ -6,7 +6,7 @@ const BUILTIN_MEALS = [
   // ─────────── Indian classics ───────────
   { id: 'chana',    name: 'Chana Masala',          sub: 'with steamed basmati',     type: ['lunch','dinner'], time: 30, kcal: 520, tags: ['Indian', 'Protein'],  tint: ['#e8a05a', '#c66a2a'], pantry: ['chickpeas','onion','tomato','garam_masala','rice','ginger'] },
   { id: 'rajma',    name: 'Rajma Chawal',          sub: 'kidney bean curry + rice', type: ['lunch','dinner'], time: 40, kcal: 580, tags: ['Indian', 'Comfort'],  tint: ['#c2613e', '#8c3c20'], pantry: ['kidney_beans','onion','tomato','rice','garam_masala'] },
-  { id: 'dal',      name: 'Dal Tadka',             sub: 'with jeera rice',          type: ['lunch','dinner'], time: 25, kcal: 470, tags: ['Indian', 'Light'],    tint: ['#e6b048', '#b88820'], pantry: ['toor_dal','rice','cumin','ghee','onion'] },
+  { id: 'dal',      name: 'Dal Tadka',             sub: 'with jeera rice',          type: ['lunch','dinner'], time: 25, kcal: 470, tags: ['Indian', 'Light'],    tint: ['#e6b048', '#b88820'], pantry: ['toor_dal','rice','cumin','ghee','onion'], img: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=400&q=80' },
   { id: 'palak',    name: 'Palak Paneer',          sub: 'with two rotis',           type: ['dinner'],          time: 35, kcal: 600, tags: ['Indian', 'Protein'],  tint: ['#5a8a4a', '#2f5e2a'], pantry: ['paneer','spinach','onion','cream','wheat_flour'] },
   { id: 'aloogobi', name: 'Aloo Gobi',             sub: 'with phulka',              type: ['lunch'],           time: 30, kcal: 440, tags: ['Indian', 'Light'],    tint: ['#d8a64a', '#9a6a1c'], pantry: ['potato','cauliflower','turmeric','wheat_flour'] },
   { id: 'biryani',  name: 'Veg Biryani',           sub: 'with raita',               type: ['lunch','dinner'], time: 45, kcal: 640, tags: ['Indian', 'Treat'],    tint: ['#c98c4a', '#8a4d18'], pantry: ['rice','mixed_veg','yogurt','biryani_masala','onion'] },
@@ -16,7 +16,7 @@ const BUILTIN_MEALS = [
 
   // ─────────── Sandwiches & quesadillas ───────────
   { id: 'chsand',   name: 'Chickpea Smash Sandwich', sub: 'lemon, dill, sourdough', type: ['lunch'],           time: 12, kcal: 480, tags: ['Sandwich', 'Quick'], tint: ['#d4b46c', '#8a6a2c'], pantry: ['chickpeas','bread','mayo','lemon','dill'] },
-  { id: 'caprese',  name: 'Caprese Sandwich',      sub: 'tomato, mozz, basil',      type: ['lunch'],           time: 8,  kcal: 460, tags: ['Sandwich', 'Quick'], tint: ['#cb6e58', '#7a3528'], pantry: ['bread','mozzarella','tomato','basil','olive_oil'] },
+  { id: 'caprese',  name: 'Caprese Sandwich',      sub: 'tomato, mozz, basil',      type: ['lunch'],           time: 8,  kcal: 460, tags: ['Sandwich', 'Quick'], tint: ['#cb6e58', '#7a3528'], pantry: ['bread','mozzarella','tomato','basil','olive_oil'], img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=400&q=80' },
   { id: 'grilled',  name: 'Grilled Veggie Wrap',   sub: 'hummus, peppers, onion',   type: ['lunch'],           time: 15, kcal: 510, tags: ['Wrap', 'Quick'],     tint: ['#a87a4a', '#5a3a1c'], pantry: ['tortilla','hummus','peppers','onion','spinach'] },
   { id: 'paneerq',  name: 'Paneer Quesadilla',     sub: 'with pickled onion',       type: ['dinner'],          time: 18, kcal: 620, tags: ['Quesadilla'],         tint: ['#d68a52', '#8a4a1a'], pantry: ['tortilla','paneer','cheese','onion','peppers'] },
   { id: 'beanq',    name: 'Black Bean Quesadilla', sub: 'avocado crema',            type: ['dinner'],          time: 15, kcal: 590, tags: ['Quesadilla'],         tint: ['#8a5234', '#4a2818'], pantry: ['tortilla','black_beans','cheese','avocado','lime'] },
@@ -26,7 +26,7 @@ const BUILTIN_MEALS = [
   // ─────────── Salads & bowls ───────────
   { id: 'medsalad', name: 'Mediterranean Bowl',    sub: 'chickpea, feta, cucumber', type: ['lunch'],           time: 12, kcal: 440, tags: ['Salad', 'Light'],    tint: ['#7aa05a', '#3a5e2a'], pantry: ['chickpeas','feta','cucumber','tomato','olive_oil'] },
   { id: 'quinoa',   name: 'Lentil Quinoa Bowl',    sub: 'roasted veg, tahini',      type: ['lunch','dinner'], time: 25, kcal: 520, tags: ['Bowl', 'Protein'],   tint: ['#b89a5a', '#7a5e28'], pantry: ['quinoa','lentils','sweet_potato','tahini','lemon'] },
-  { id: 'greek',    name: 'Greek Salad + Hummus',  sub: 'with pita',                type: ['lunch'],           time: 10, kcal: 420, tags: ['Salad', 'Light'],    tint: ['#5e8c5e', '#2a4e2a'], pantry: ['cucumber','tomato','olives','feta','hummus','pita'] },
+  { id: 'greek',    name: 'Greek Salad + Hummus',  sub: 'with pita',                type: ['lunch'],           time: 10, kcal: 420, tags: ['Salad', 'Light'],    tint: ['#5e8c5e', '#2a4e2a'], pantry: ['cucumber','tomato','olives','feta','hummus','pita'], img: 'https://images.unsplash.com/photo-1466637574441-749b8f19452f?auto=format&fit=crop&w=400&q=80' },
   { id: 'avo',      name: 'Avocado Chickpea Salad', sub: 'lemon, chili',            type: ['lunch'],           time: 8,  kcal: 410, tags: ['Salad', 'Quick'],    tint: ['#7c9c4a', '#3e5a1e'], pantry: ['chickpeas','avocado','lemon','chili','red_onion'] },
   { id: 'sl_kale',  name: 'Kale Caesar Salad',     sub: 'parmesan, lemon, croutons', type: ['lunch'],          time: 12, kcal: 420, tags: ['Salad', 'Light'],    tint: ['#5a8a4a', '#244e2a'], pantry: ['kale','parmesan','lemon','bread','olive_oil'] },
   { id: 'sl_thai',  name: 'Thai Crunch Salad',     sub: 'peanut, lime, cabbage',    type: ['lunch'],           time: 15, kcal: 460, tags: ['Salad', 'Asian'],    tint: ['#b8a04a', '#7a6824'], pantry: ['cabbage','peanut','lime','carrot','tofu'] },
@@ -41,9 +41,9 @@ const BUILTIN_MEALS = [
   { id: 'sm_mango', name: 'Mango Lassi Smoothie',  sub: 'cardamom, honey',          type: ['lunch'],           time: 5,  kcal: 360, tags: ['Smoothie', 'Quick'],  tint: ['#e6a84a', '#a0681c'], pantry: ['mango','yogurt','cardamom','honey','milk'] },
 
   // ─────────── Other ───────────
-  { id: 'pasta',    name: 'Pasta Arrabiata',       sub: 'garlic, chili, parsley',   type: ['dinner'],          time: 20, kcal: 620, tags: ['Pasta', 'Comfort'],  tint: ['#c45838', '#702818'], pantry: ['pasta','tomato','garlic','chili','parsley'] },
+  { id: 'pasta',    name: 'Pasta Arrabiata',       sub: 'garlic, chili, parsley',   type: ['dinner'],          time: 20, kcal: 620, tags: ['Pasta', 'Comfort'],  tint: ['#c45838', '#702818'], pantry: ['pasta','tomato','garlic','chili','parsley'], img: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=400&q=80' },
   { id: 'fried',    name: 'Tofu Fried Rice',       sub: 'sesame, scallion',         type: ['dinner'],          time: 18, kcal: 540, tags: ['Asian', 'Quick'],    tint: ['#b88a4a', '#6a4a1a'], pantry: ['rice','tofu','scallion','soy_sauce','egg'] },
-  { id: 'soup',     name: 'Lentil Soup + Bread',   sub: 'tomato, smoked paprika',   type: ['dinner'],          time: 25, kcal: 460, tags: ['Soup', 'Light'],     tint: ['#b8593a', '#6a2818'], pantry: ['lentils','tomato','onion','paprika','bread'] },
+  { id: 'soup',     name: 'Lentil Soup + Bread',   sub: 'tomato, smoked paprika',   type: ['dinner'],          time: 25, kcal: 460, tags: ['Soup', 'Light'],     tint: ['#b8593a', '#6a2818'], pantry: ['lentils','tomato','onion','paprika','bread'], img: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80' },
 ];
 
 // Tint palette for new custom meals — cycled through.

@@ -1,4 +1,4 @@
-const CACHE = 'salt-shuffle-v2';
+const CACHE = 'salt-shuffle-v3';
 const SHELL = [
   './index.html',
   './app/data.js',
