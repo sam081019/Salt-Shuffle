@@ -1,9 +1,14 @@
 import math, struct, zlib
 
 W, H = 512, 512
-ang = math.radians(42)
-ca, sa = math.cos(ang), math.sin(ang)
-ux, uy = 256, 412  # crossing point
+
+# Mood board palette — exact hex values
+BG      = (245, 239, 228)  # #F5EFE4  linen cream  (background)
+TERRA   = (200,  85,  61)  # #C8553D  sun-dried terra  (jar body)
+FOREST  = ( 61,  90,  64)  # #3D5A40  bay forest   (cap)
+MUSTARD = (232, 177,  79)  # #E8B14F  turmeric gold (label stripe)
+INK     = ( 43,  38,  32)  # #2B2620  ink          (label borders)
+CREAM   = (251, 246, 236)  # #FBF6EC  paper cream  (holes)
 
 def in_ellipse(x, y, cx, cy, rx, ry):
     return ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1
@@ -11,68 +16,40 @@ def in_ellipse(x, y, cx, cy, rx, ry):
 def in_rrect(x, y, x1, y1, x2, y2, r=0):
     if x < x1 or x > x2 or y < y1 or y > y2:
         return False
-    if x < x1 + r and y < y1 + r: return in_ellipse(x, y, x1+r, y1+r, r, r)
-    if x > x2 - r and y < y1 + r: return in_ellipse(x, y, x2-r, y1+r, r, r)
-    if x < x1 + r and y > y2 - r: return in_ellipse(x, y, x1+r, y2-r, r, r)
-    if x > x2 - r and y > y2 - r: return in_ellipse(x, y, x2-r, y2-r, r, r)
+    if x < x1+r and y < y1+r: return in_ellipse(x, y, x1+r, y1+r, r, r)
+    if x > x2-r and y < y1+r: return in_ellipse(x, y, x2-r, y1+r, r, r)
+    if x < x1+r and y > y2-r: return in_ellipse(x, y, x1+r, y2-r, r, r)
+    if x > x2-r and y > y2-r: return in_ellipse(x, y, x2-r, y2-r, r, r)
     return True
 
-def gauss(x, mu, amp, sig):
-    return amp * math.exp(-0.5 * ((x - mu) / sig) ** 2)
+def pixel_color(x, y):
+    # ── Holes on cap (three cream dots — the universal salt signal)
+    if in_ellipse(x, y, 222, 164, 10, 10): return CREAM
+    if in_ellipse(x, y, 256, 164, 10, 10): return CREAM
+    if in_ellipse(x, y, 290, 164, 10, 10): return CREAM
 
-def hat_hit(x, y):
-    bump = (gauss(x, 256, 108, 30) +
-            gauss(x, 160, 64, 24) +
-            gauss(x, 352, 64, 24))
-    hat_top = 165 - bump
-    if bump >= 8 and hat_top <= y <= 166:
-        return True
-    if 213 <= x <= 299 and 158 <= y <= 262:
-        return True
-    if in_rrect(x, y, 160, 256, 352, 278, 10):
-        return True
-    return False
+    # ── Cap (forest green, sits on top of body)
+    if in_rrect(x, y, 182, 128, 330, 202, 20): return FOREST
 
-# Knife: rotate(-42) — same frame as the old fork
-# World→local: fx = ca*dx - sa*dy,  fy = sa*dx + ca*dy
-def knife_hit(x, y):
-    dx, dy = x - ux, y - uy
-    fx = ca * dx - sa * dy
-    fy = sa * dx + ca * dy
-    # Blade: tapers from 0 at tip (fy=-162) to 18 px wide at base (fy=-74).
-    # Spine on positive-fx side, thin cutting edge on negative-fx side.
-    if -162 <= fy <= -74:
-        t = (fy + 162) / (162 - 74)   # 0 at tip, 1 at base
-        spine = 14 * t
-        edge  =  4 * t
-        if -edge <= fx <= spine:
-            return True
-    # Handle
-    if abs(fx) <= 11 and -78 <= fy <= 108:
-        return True
-    return False
+    # ── Jar body with mustard label stripe in the middle
+    in_body = in_rrect(x, y, 170, 194, 342, 416, 28)
+    if in_body:
+        # thin ink rule at label edges
+        if 278 <= y <= 282: return INK
+        if 330 <= y <= 334: return INK
+        # mustard label band
+        if 282 <= y <= 330: return MUSTARD
+        return TERRA
 
-# Spoon: rotate(+42) — visual CW 42° in y-down
-# World→local: sx = ca*dx + sa*dy,  sy = -sa*dx + ca*dy
-def spoon_hit(x, y):
-    dx, dy = x - ux, y - uy
-    sx =  ca * dx + sa * dy
-    sy = -sa * dx + ca * dy
-    if in_ellipse(sx, sy, 0, -130, 30, 44):
-        return True
-    if abs(sx) <= 11 and -78 <= sy <= 108:
-        return True
-    return False
+    # ── Linen cream background
+    return BG
 
 print("Rendering 512×512…")
 pixels = []
 for y in range(H):
     row = []
     for x in range(W):
-        if hat_hit(x, y) or knife_hit(x, y) or spoon_hit(x, y):
-            row.append((255, 255, 255))
-        else:
-            row.append((17, 17, 17))
+        row.append(pixel_color(x, y))
     pixels.append(row)
 
 def write_png(pixels, w, h, path):
