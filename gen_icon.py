@@ -21,47 +21,45 @@ def gauss(x, mu, amp, sig):
     return amp * math.exp(-0.5 * ((x - mu) / sig) ** 2)
 
 def hat_hit(x, y):
-    # Three-bump top surface: centre puff tall, side puffs narrower + shorter.
-    # Sigma ~24–30 keeps each bump tight enough that clear valleys form between them.
-    bump = (gauss(x, 256, 108, 30) +   # large centre puff
-            gauss(x, 160, 64, 24) +    # left small puff
-            gauss(x, 352, 64, 24))     # right small puff
-    hat_top = 165 - bump               # y of top surface at this x
-
-    # Puff cluster: any x where the bump is significant enough to be visible
+    bump = (gauss(x, 256, 108, 30) +
+            gauss(x, 160, 64, 24) +
+            gauss(x, 352, 64, 24))
+    hat_top = 165 - bump
     if bump >= 8 and hat_top <= y <= 166:
         return True
-    # Cylindrical body — narrower than puff cluster
     if 213 <= x <= 299 and 158 <= y <= 262:
         return True
-    # Flat brim — wider than cylinder
     if in_rrect(x, y, 160, 256, 352, 278, 10):
         return True
     return False
 
-# Fork: rotate(-42) world→local: fx = ca*dx - sa*dy,  fy = sa*dx + ca*dy
-def fork_hit(x, y):
+# Knife: rotate(-42) — same frame as the old fork
+# World→local: fx = ca*dx - sa*dy,  fy = sa*dx + ca*dy
+def knife_hit(x, y):
     dx, dy = x - ux, y - uy
     fx = ca * dx - sa * dy
     fy = sa * dx + ca * dy
-    # 3 tines, 9 px wide, spaced ±22
-    if -148 <= fy <= -80:
-        if abs(fx + 22) <= 9 or abs(fx) <= 9 or abs(fx - 22) <= 9:
+    # Blade: tapers from 0 at tip (fy=-162) to 18 px wide at base (fy=-74).
+    # Spine on positive-fx side, thin cutting edge on negative-fx side.
+    if -162 <= fy <= -74:
+        t = (fy + 162) / (162 - 74)   # 0 at tip, 1 at base
+        spine = 14 * t
+        edge  =  4 * t
+        if -edge <= fx <= spine:
             return True
     # Handle
-    if abs(fx) <= 11 and -84 <= fy <= 108:
+    if abs(fx) <= 11 and -78 <= fy <= 108:
         return True
     return False
 
-# Spoon: rotate(+42) world→local: sx = ca*dx + sa*dy,  sy = -sa*dx + ca*dy
+# Spoon: rotate(+42) — visual CW 42° in y-down
+# World→local: sx = ca*dx + sa*dy,  sy = -sa*dx + ca*dy
 def spoon_hit(x, y):
     dx, dy = x - ux, y - uy
     sx =  ca * dx + sa * dy
     sy = -sa * dx + ca * dy
-    # Bowl
     if in_ellipse(sx, sy, 0, -130, 30, 44):
         return True
-    # Handle
     if abs(sx) <= 11 and -78 <= sy <= 108:
         return True
     return False
@@ -71,7 +69,7 @@ pixels = []
 for y in range(H):
     row = []
     for x in range(W):
-        if hat_hit(x, y) or fork_hit(x, y) or spoon_hit(x, y):
+        if hat_hit(x, y) or knife_hit(x, y) or spoon_hit(x, y):
             row.append((255, 255, 255))
         else:
             row.append((17, 17, 17))

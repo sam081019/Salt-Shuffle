@@ -1,4 +1,4 @@
-const CACHE = 'kitchen-master-v1';
+const CACHE = 'salt-shuffle-v1';
 const SHELL = [
   './index.html',
   './app/data.js',

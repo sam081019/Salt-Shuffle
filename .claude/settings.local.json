@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh auth *)",
+      "Bash(git config *)",
+      "Read(//Users/saumyasrivastava/**)",
+      "Bash(ssh -T git@github.com)",
+      "Bash(git init *)"
+    ]
+  }
+}

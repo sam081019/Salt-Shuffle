@@ -1,20 +1,22 @@
-// Cookbook direction — warm editorial. Instrument Serif display, IBM Plex
-// Sans body, cream paper, terracotta accent. Calm + confident.
+// Salt&Shuffle — warm editorial. DM Serif Display, Bricolage Grotesque,
+// linen cream paper, sun-dried terra accent. Mood board: May 2026.
 
 const C = {
-  paper: '#f6efe3',
-  paperDeep: '#ede2cd',
-  ink: '#211c14',
-  inkDim: '#5a4f3a',
+  paper: '#F5EFE4',
+  paperDeep: '#ECE3D2',
+  ink: '#2B2620',
+  inkDim: '#4A4138',
   inkFaint: '#8a7d62',
-  rule: 'rgba(33,28,20,0.12)',
-  ruleSoft: 'rgba(33,28,20,0.06)',
-  accent: '#b04a28',
-  accentDim: '#d8apex',
-  card: '#fffaee',
-  fontDisplay: 'var(--cookbook-display, "Instrument Serif", "Source Serif 4", Georgia, serif)',
-  fontBody: '"IBM Plex Sans", -apple-system, system-ui, sans-serif',
-  fontMono: '"IBM Plex Mono", ui-monospace, monospace',
+  rule: 'rgba(43,38,32,0.12)',
+  ruleSoft: 'rgba(43,38,32,0.06)',
+  accent: '#C8553D',   // sun-dried terra
+  forest: '#3D5A40',   // bay forest
+  mustard: '#E8B14F',  // turmeric gold
+  card: '#FBF6EC',
+  fontDisplay: '"DM Serif Display", Georgia, serif',
+  fontBody: '"Bricolage Grotesque", system-ui, sans-serif',
+  fontMono: '"Bricolage Grotesque", system-ui, sans-serif',
+  fontHand: '"Caveat", cursive',
 };
 
 // Abstract dish "plate" — radial gradient bowl with a soft inner ring and

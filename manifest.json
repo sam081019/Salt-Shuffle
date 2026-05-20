@@ -1,6 +1,6 @@
 {
-  "name": "Kitchen Master",
-  "short_name": "Kitchen Master",
+  "name": "Salt&Shuffle",
+  "short_name": "Salt&Shuffle",
   "description": "Shuffle your week. Build your pantry. Cook with confidence.",
   "start_url": "./index.html",
   "scope": "./",
