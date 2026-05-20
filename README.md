@@ -1,4 +1,4 @@
-# Handoff: Kitchen Queen — Weekly Meal Planner
+# Salt&Shuffle — Weekly Meal Planner
 
 ## Overview
 A personal, single-user iPhone app that takes the cognitive load out of weekly meal planning. The user feeds it the contents of their pantry, the meals they like, and which days they're eating out. The app then shuffles a week of lunches and dinners (Mon–Fri by default) and auto-generates a shopping list for the gap between pantry and plan.
@@ -226,7 +226,7 @@ The user has not asked for these — flag them as open questions before adding:
 - Nutrition totals across the week (per-meal kcal exists but isn't summed)
 - Weekend planning (intentionally excluded — Mon–Fri only by default)
 - Multi-user, sharing, exports
-- Real photos for meals (user evaluated photos and preferred solid plates)
+- Leftovers logic (cook-once-eat-twice)
 - Authentication / cloud sync
 
 ## Files in this bundle
